@@ -3,7 +3,15 @@ import mongoose from 'mongoose';
 import colors from 'colors';
 
 import createMasterData from '../utils/master.js';
-import { createLogger } from '../utils/logger.js';
+import { loggers } from '../utils/logger.js';
+
+import {
+  writeLogDebug,
+  writeLogError,
+  writeLogInfo,
+  writeLogSilly,
+  writeLogWarn,
+} from '../helpers/writeLog.js';
 
 const connectDB = async () => {
   try {
@@ -19,24 +27,27 @@ const connectDB = async () => {
       socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
     });
 
-    createLogger.primary.debug(`${process.env.MONGO_URI}`);
-
+    // writeLogInfo(`${process.env.MONGO_URI}`);
     // CONNECTION EVENTS
     // When successfully connected
     mongoose.connection.on('connected', () => {
-      createLogger.info(
-        'Mongoose default connection open to ' + process.env.MONGO_URI
+      writeLogInfo(
+        'Mongoose default connection open to ',
+        process.env.MONGO_URI
       );
     });
 
     // If the connection throws an error
     mongoose.connection.on('error', (err) => {
-      createLogger.error('Mongoose default connection error: ' + err);
+      writeLogError(
+        'Mongoose default connection error: ',
+        JSON.stringify(err, null, 2)
+      );
     });
 
     // When the connection is disconnected
     mongoose.connection.on('disconnected', () => {
-      createLogger.info('Mongoose default connection disconnected');
+      writeLogWarn('Mongoose default connection disconnected');
     });
 
     console.log(
@@ -48,6 +59,9 @@ const connectDB = async () => {
 
     await createMasterData();
   } catch (err) {
+    loggers.primary.error(
+      'Mongoose default connection error: ' + JSON.stringify(err, null, 2)
+    );
     console.error(err);
     process.exit(1);
   }

@@ -1,8 +1,15 @@
 // @ts-nocheck
 import mongoose from 'mongoose';
-import { createLogger } from '../../utils/logger.js';
 import asyncHandler from '../../middlewares/async.js';
 import ErrorResponse from '../../utils/errorResponse.js';
+
+import {
+  writeLogDebug,
+  writeLogError,
+  writeLogInfo,
+  writeLogSilly,
+  writeLogWarn,
+} from '../../helpers/writeLog.js';
 
 // Import model
 import Role from '../../models/static/Role.js';
@@ -45,15 +52,20 @@ const signupUser = asyncHandler(async (req, res, next) => {
         (message && `${message.replace(/phone/g, 'Contact Number')},`) +
         (a.message.replace(/\"/g, '') + '.');
     });
-    createLogger.info(`
-      Failed signup attempt with - ${req.body}
-      error - ${message}
-    `);
+
+    writeLogError(
+      req.clientIP,
+      req.reqUrlPath,
+      'Failed signup attempt with',
+      req.body.email,
+      message
+    );
     return next(new ErrorResponse(message, 422));
   }
 
   if (value?.userRole && value?.userRole.toUpperCase() === 'ADMIN') {
     message = "Admin can't be Created";
+    writeLogError(req.clientIP, req.reqUrlPath, req?.body?.email, message);
     return next(new ErrorResponse(message, 422));
   }
 
@@ -63,6 +75,7 @@ const signupUser = asyncHandler(async (req, res, next) => {
 
   if (!extractUserRole) {
     message = 'Invalid User Type...';
+    writeLogError(req.clientIP, req.reqUrlPath, req?.body?.email, message);
     return next(new ErrorResponse(message, 422));
   }
 
@@ -88,6 +101,9 @@ const signupUser = asyncHandler(async (req, res, next) => {
     token: createdUser.getSignedJwtToken(),
   };
 
+  message = 'Successful signup attempt with';
+  writeLogInfo(req.clientIP, req.reqUrlPath, toBeSentUser?.email, message);
+
   return res
     .status(201)
     .json({ message: 'Signup successfull', code: 201, data: toBeSentUser });
@@ -104,8 +120,6 @@ const loginUser = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
   let message = '';
 
-  createLogger.debug('Hi login attempt', JSON.stringify(req.body, null, 4));
-
   if (!email || !password) {
     return res
       .status(400)
@@ -120,6 +134,14 @@ const loginUser = asyncHandler(async (req, res, next) => {
       message =
         (message && `${message},`) + (a.message.replace(/\"/g, '') + '.');
     });
+
+    writeLogError(
+      req.clientIP,
+      req.reqUrlPath,
+      'Login attempt Unsuccessfull',
+      email,
+      message
+    );
     return next(new ErrorResponse(message, 422));
   }
 
@@ -128,33 +150,35 @@ const loginUser = asyncHandler(async (req, res, next) => {
     .populate('userRole', 'value')
     .select('+password');
 
-  // console.log(user);
-
   if (!user) {
-    createLogger.warn(`
-      Failed login attempt with - ${req.body}
-      Message - No User Found
-    `);
-    return res.status(400).json({ code: 400, msg: 'User Not Found' });
+    message = 'No User Found with Email';
+
+    writeLogError(
+      req.clientIP,
+      req.reqUrlPath,
+      'Login attempt Unsuccessfull',
+      email,
+      message
+    );
+    return next(new ErrorResponse(`No User Found with Email`, 404));
   }
 
   //   check if password matches
   const isMatch = await user.matchPassword(password);
 
   if (!isMatch) {
-    createLogger.warn(`Failed login attempt with - ${JSON.stringify(
-      req.body,
-      null,
-      4
-    )}
-      Message - Password Incorrect`);
-    return res.status(400).json({ code: 400, msg: `Invalid Credential` });
+    message = `Invalid Credential`;
+    writeLogError(
+      req.clientIP,
+      req.reqUrlPath,
+      'Login attempt Unsuccessfull',
+      email,
+      message
+    );
+    return next(new ErrorResponse(message, 404));
   }
 
-  createLogger.info(`
-      Successfull login attempt with - ${req.body}
-      Message - login Successful
-    `);
+  writeLogInfo(req.clientIP, req.reqUrlPath, 'Login Successfull', email);
 
   // Create Token
   const token = user.getSignedJwtToken();
@@ -172,7 +196,5 @@ const loginUser = asyncHandler(async (req, res, next) => {
   });
   // sendTokenResponse(user, 200, res);
 });
-
-//
 
 export { testAuth, loginUser, signupUser };

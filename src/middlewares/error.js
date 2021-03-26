@@ -33,7 +33,8 @@ const errorHandler = (err, req, res, next) => {
   return res.status(error.statusCode || 500).json({
     sucess: false,
     code: error.statusCode || 500,
-    error: error.message || 'Something Went Wrong',
+    message: error.message || 'Something Went Wrong',
+    stack: process.env.NODE_ENV === 'production' ? undefined : err.stack,
   });
 };
 

@@ -13,7 +13,13 @@ dotenv.config({ path: `./src/config/config.env` });
 import connectDB from './src/config/db.js';
 
 // Middlewares
-import { checkReqType, userAgentCheck } from './src/middlewares/userAgent.js';
+import {
+  checkReqType,
+  userAgentCheck,
+  ipMiddleware,
+  reqRouteMw,
+  blockedUserMw,
+} from './src/middlewares/userAgent.js';
 import errorHandler from './src/middlewares/error.js';
 import routeLoader from './src/middlewares/router.js';
 
@@ -41,8 +47,11 @@ process.env.NODE_ENV === 'development' && app.use(morgan('dev'));
 const isCookieSecure = process.env.NODE_ENV === 'production' ? true : false;
 
 app.use(cors(corsOptions));
-app.use(userAgentCheck);
+app.use(ipMiddleware);
+app.use(reqRouteMw);
 app.use(checkReqType);
+app.use(userAgentCheck);
+app.use(blockedUserMw);
 
 // All Router
 routeLoader(app);
@@ -54,8 +63,8 @@ app.use(errorHandler);
 // No Route Should Go Ubder this Block
 app.use(function (req, res, next) {
   return res.status(404).json({
-    success: false,
     code: 404,
+    success: false,
     message: 'No Resource Found',
   });
 });

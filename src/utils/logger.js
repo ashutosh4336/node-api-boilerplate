@@ -15,7 +15,6 @@ const currentdate = format(now, 'YYY-MM-dd');
 
 // create directory if it is not present
 if (!fs.existsSync(dir)) {
-  // Create the directory if it does not exist
   fs.mkdirSync(dir);
 }
 
@@ -33,50 +32,38 @@ const options = {
     prettyPrint: true,
     json: true,
     maxSize: '20m',
-    colorize: false,
+    colorize: true,
     maxFiles: '14d',
   },
 };
 
-const createLogger = {
-  // For HTTP VERBOSE DEBUG SILLY
-  primary: winston.createLogger({
-    transports: [
-      new winston.transports.File({
-        maxSize: '20m',
-        maxFiles: 10,
-        filename: `${dir}/${currentdate}-primary.log`,
-        format: winston.format.combine(
-          // winston.format.colorize({ all: true }),
-          winston.format.timestamp(),
-          winston.format.align(),
-          winston.format.prettyPrint(),
-          winston.format.errors({ stack: true })
-          // winston.format.printf(
-          //   (info) => `${info.timestamp} ${info.level}: ${info.message}`
-          // )
-        ),
-      }),
-    ],
-    exceptionHandlers: [new DailyRotateFile(options.file)],
-    exitOnError: false, // do not exit on handled exceptions
-  }),
+const timeFormat = () => {
+  // return { format: 'YYYY-MM-DD HH:mm:ss' };
+  const dateFormat =
+    format(Date.now(), 'dd MMM yyyy') +
+    ' at ' +
+    new Date().toLocaleString('en-US', {
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true,
+    });
+  return dateFormat;
+};
 
-  danger: winston.createLogger({
+const loggers = {
+  primary: winston.createLogger({
+    // level: 'info',
+    format: winston.format.json(),
     transports: [
       new winston.transports.File({
-        maxSize: 10240,
-        maxFiles: 10,
-        filename: `${dir}/${currentdate}-danger.log`,
+        filename: `${dir}/${currentdate}.log`,
+        maxsize: 20480,
+        maxFiles: 20,
         format: winston.format.combine(
-          // winston.format.colorize({ all: true }),
-          winston.format.timestamp(),
+          winston.format.timestamp({ format: timeFormat }),
           winston.format.align(),
-          winston.format.prettyPrint(),
-          winston.format.errors({ stack: true })
-          // winston.format.printf(
-          //   (info) => `${info.timestamp} ${info.level}: ${info.message}`
-          // )
+          winston.format.errors({ stack: true }),
+          winston.format.prettyPrint()
         ),
       }),
     ],
@@ -85,4 +72,4 @@ const createLogger = {
   }),
 };
 
-export { createLogger };
+export { loggers };
