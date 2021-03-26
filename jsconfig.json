@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@src/*": ["src/*"]
+    }
+  }
+}
+// "@config/*": ["src/config/*"],
+// "@routes/*": ["src/routes/*"],
+// "@models/*": ["src/models/*"],
+// "@middlewares/*": ["src/middlewares/*"],
+// "@controllers/*": ["src/controllers/*"],
+// "@lib/*": ["src/lib/*"],
+// "@utils/*": ["src/utils/*"],
+// "@data/*": ["src/data/*"],
+// "@helpers/*": ["src/helpers/*"],
+// "@validations/*": ["src/validations/*"]
