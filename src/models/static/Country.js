@@ -56,12 +56,58 @@ const CountrySchema = new mongoose.Schema(
     intermediateRegionCode: {
       type: mongoose.Schema.Types.String,
     },
+
+    nativeCountryName: {
+      type: mongoose.Schema.Types.String,
+    },
+
+    phone: {
+      type: mongoose.Schema.Types.String,
+    },
+
+    continent: {
+      type: mongoose.Schema.Types.String,
+    },
+
+    capital: {
+      type: mongoose.Schema.Types.String,
+    },
+
+    currency: {
+      type: mongoose.Schema.Types.String,
+    },
+
+    languages: {
+      type: mongoose.Schema.Types.Array,
+    },
   },
   {
     timestamps: true,
     versionKey: false,
   }
 );
+
+/**
+ * {
+    countryName: 'Afghanistan',
+    aplhaTwo: 'AF',
+    aplhaThree: 'AFG',
+    countryCode: '004',
+    iso: 'ISO 3166-2:AF',
+    region: 'Asia',
+    subRegion: 'Southern Asia',
+    intermediateRegion: '',
+    regionCode: '142',
+    subRegionCode: '034',
+    intermediateRegionCode: '',
+    nativeCountryName: 'افغانستان',
+    phone: '93',
+    continent: 'AS',
+    capital: 'Kabul',
+    currency: 'AFN',
+    languages: ['ps', 'uz', 'tk'],
+  },
+ */
 
 const Country = mongoose.model(DOCUMENT_NAME, CountrySchema, COLLECTION_NAME);
 

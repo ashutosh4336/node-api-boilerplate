@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import colors from 'colors';
 
 import createMasterData from '../utils/master.js';
-import createLogger from '../utils/logger.js';
+import { createLogger } from '../utils/logger.js';
 
 const connectDB = async () => {
   try {
@@ -19,7 +19,7 @@ const connectDB = async () => {
       socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
     });
 
-    createLogger.debug(process.env.MONGO_URI);
+    createLogger.primary.debug(`${process.env.MONGO_URI}`);
 
     // CONNECTION EVENTS
     // When successfully connected
@@ -47,7 +47,6 @@ const connectDB = async () => {
     );
 
     await createMasterData();
-    console.log('📝️ ' + colors.cyan.bold.underline(`Master Data Created...`));
   } catch (err) {
     console.error(err);
     process.exit(1);

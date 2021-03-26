@@ -8,18 +8,13 @@ import Role from '../models/static/Role.js';
 import Month from '../models/static/Month.js';
 
 // IMPORT DATA
-import {
-  ROLEDATA,
-  COUNTRIESDATA,
-  MONTHDATA,
-  ACCOUNTSTATUSDATA,
-} from '../data/MasterData.js';
+import { ROLEDATA, MONTHDATA, ACCOUNTSTATUSDATA } from '../data/MasterData.js';
+import { COUNTRIESDATA } from '../data/Country.js';
 
 const createMasterData = async () => {
   try {
     console.log(
-      '👋️ ' +
-        colors.green.bold.underline('Hang On... Creating Master Data !!!')
+      '👋️ ' + colors.green.bold('Checking and Creating Master Data...!!!')
     );
 
     const role = await Role.findOne({}).lean();
@@ -52,6 +47,8 @@ const createMasterData = async () => {
     if (!countries) {
       await Country.insertMany(COUNTRIESDATA);
     }
+
+    console.log('📝️ ' + colors.cyan.bold(`Master Data Created...!!!`));
   } catch (err) {
     console.error(err);
   }
