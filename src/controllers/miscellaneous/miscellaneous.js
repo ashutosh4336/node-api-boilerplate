@@ -23,13 +23,23 @@ import BlackListIp from '../../models/user/BlackListIp.js';
  * @access      Public
  */
 const blockUser = asyncHandler(async (req, res, next) => {
-  const { ip } = req.body;
+  let finalElArr = [];
+  let { ip } = req.body;
+  ip = ip.split(',');
 
-  const resFromDb = await BlackListIp.create({ ip });
-  console.log(resFromDb);
+  ip.forEach((element) => {
+    finalElArr.push({ ip: element });
+  });
 
-  writeLogInfo(req.clientIP, req.reqUrlPath, ip, 'IP Blocked');
-  return res.status(200).json({ msg: 'Admin Works' });
+  const resFromDb = await BlackListIp.insertMany(finalElArr);
+
+  writeLogInfo(
+    req.clientIP,
+    req.reqUrlPath,
+    JSON.stringify(ip, null, 2),
+    'IP Blocked'
+  );
+  return res.status(200).json({ msg: 'IP Blocked', resFromDb });
 });
 
 export { blockUser };

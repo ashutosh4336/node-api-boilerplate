@@ -9,7 +9,7 @@ const errorHandler = (err, req, res, next) => {
 
   // Log To Console For Developer
   if (process.env.NODE_ENV === 'development') {
-    console.log(colors.red(err));
+    console.log(colors.red(error));
   }
 
   //   Mongoose bad ObejctID
@@ -20,13 +20,16 @@ const errorHandler = (err, req, res, next) => {
 
   //   Mongoose Duplicat Key
   if (err.code === 11000) {
+    console.log('11000', err.message);
     message = `Duplicate filed entered`;
     error = new ErrorResponse(message, 422);
   }
 
   //   Mongoose Validation Error ValidationError
   if (err.name === 'ValidationError') {
-    message = Object.values(err.errors).map((val) => val.message);
+    message = Object.values(err.errors).map(
+      (val) => `${val.message} "${val?.value}"`
+    );
     error = new ErrorResponse(message, 422);
   }
 
@@ -34,7 +37,7 @@ const errorHandler = (err, req, res, next) => {
     sucess: false,
     code: error.statusCode || 500,
     message: error.message || 'Something Went Wrong',
-    stack: process.env.NODE_ENV === 'production' ? undefined : err.stack,
+    stack: process.env.NODE_ENV === 'production' ? undefined : error.stack,
   });
 };
 

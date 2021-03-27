@@ -1,8 +1,6 @@
-import requestIp from 'request-ip';
-const reqMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 import BlackListIp from '../models/user/BlackListIp.js';
 import ErrorResponse from '../utils/errorResponse.js';
-
+import requestIp from 'request-ip';
 import {
   writeLogDebug,
   writeLogError,
@@ -10,6 +8,8 @@ import {
   writeLogSilly,
   writeLogWarn,
 } from '../helpers/writeLog.js';
+
+const reqMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 
 /**
  *
